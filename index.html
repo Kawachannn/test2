@@ -2,67 +2,73 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>ガチャゲーム</title>
+<title>10連ガチャ</title>
 <style>
-    body {
-        font-family: sans-serif;
-        text-align: center;
-        background: linear-gradient(to bottom, #222, #444);
-        color: white;
-        margin: 0;
-        padding: 20px;
-    }
+body {
+    font-family: sans-serif;
+    text-align: center;
+    background: linear-gradient(to bottom, #111, #333);
+    color: white;
+}
 
-    h1 {
-        margin-bottom: 20px;
-    }
+h1 {
+    margin-top: 20px;
+}
 
-    #gachaBtn {
-        padding: 15px 30px;
-        font-size: 20px;
-        background: gold;
-        border: none;
-        border-radius: 10px;
-        cursor: pointer;
-        transition: 0.2s;
-    }
+button {
+    padding: 12px 25px;
+    font-size: 18px;
+    margin: 10px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    background: gold;
+}
 
-    #gachaBtn:hover {
-        transform: scale(1.1);
-    }
+button:hover {
+    transform: scale(1.1);
+}
 
-    #result {
-        margin-top: 30px;
-        font-size: 30px;
-        min-height: 50px;
-    }
+#result {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin-top: 30px;
+    padding: 10px;
+}
 
-    .card {
-        margin-top: 20px;
-        padding: 20px;
-        border-radius: 15px;
-        display: inline-block;
-        font-size: 24px;
-        animation: pop 0.5s ease;
-    }
+.card {
+    padding: 15px;
+    border-radius: 10px;
+    font-size: 14px;
+    animation: pop 0.4s ease;
+}
 
-    .N { background: gray; }
-    .R { background: blue; }
-    .SR { background: purple; }
-    .SSR { background: gold; color: black; }
+.N { background: gray; }
+.R { background: blue; }
+.SR { background: purple; }
+.SSR { background: gold; color: black; }
 
-    @keyframes pop {
-        0% { transform: scale(0); }
-        100% { transform: scale(1); }
-    }
+@keyframes pop {
+    0% { transform: scale(0); }
+    100% { transform: scale(1); }
+}
+
+#message {
+    margin-top: 20px;
+    font-size: 24px;
+    color: gold;
+}
 </style>
 </head>
 <body>
 
-<h1>🎰 ガチャゲーム</h1>
+<h1>🎰 ガチャゲーム（10連対応）</h1>
 
-<button id="gachaBtn">ガチャを引く！</button>
+<button onclick="singleGacha()">単発ガチャ</button>
+<button onclick="tenGacha()">10連ガチャ</button>
 
+<div id="message"></div>
 <div id="result"></div>
 
 <script>
@@ -74,28 +80,67 @@ const characters = [
     { name: "神龍", rarity: "SSR", rate: 3 }
 ];
 
+// ガチャ抽選
 function drawGacha() {
     let rand = Math.random() * 100;
     let sum = 0;
 
     for (let char of characters) {
         sum += char.rate;
-        if (rand <= sum) {
-            return char;
-        }
+        if (rand <= sum) return char;
     }
 }
 
-document.getElementById("gachaBtn").addEventListener("click", () => {
-    const result = drawGacha();
-    const resultDiv = document.getElementById("result");
+// カード生成
+function createCard(char) {
+    return `<div class="card ${char.rarity}">
+        ${char.rarity}<br>${char.name}
+    </div>`;
+}
 
-    resultDiv.innerHTML = `
-        <div class="card ${result.rarity}">
-            ${result.rarity}：${result.name}
-        </div>
-    `;
-});
+// 単発
+function singleGacha() {
+    document.getElementById("message").innerText = "";
+    const result = drawGacha();
+    document.getElementById("result").innerHTML = createCard(result);
+}
+
+// 10連（SSR確定付き）
+function tenGacha() {
+    let results = [];
+    let hasSRorHigher = false;
+
+    for (let i = 0; i < 10; i++) {
+        let r = drawGacha();
+        if (r.rarity === "SR" || r.rarity === "SSR") {
+            hasSRorHigher = true;
+        }
+        results.push(r);
+    }
+
+    // ★SR以上確定（救済）
+    if (!hasSRorHigher) {
+        results[9] = { name: "ドラゴン", rarity: "SR" };
+    }
+
+    // 表示
+    let html = "";
+    let hasSSR = false;
+
+    results.forEach(r => {
+        html += createCard(r);
+        if (r.rarity === "SSR") hasSSR = true;
+    });
+
+    document.getElementById("result").innerHTML = html;
+
+    // メッセージ演出
+    if (hasSSR) {
+        document.getElementById("message").innerText = "✨SSRきた！！✨";
+    } else {
+        document.getElementById("message").innerText = "10連結果";
+    }
+}
 </script>
 
 </body>
