@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>ガチャゲーム</title>
+<style>
+    body {
+        font-family: sans-serif;
+        text-align: center;
+        background: linear-gradient(to bottom, #222, #444);
+        color: white;
+        margin: 0;
+        padding: 20px;
+    }
+
+    h1 {
+        margin-bottom: 20px;
+    }
+
+    #gachaBtn {
+        padding: 15px 30px;
+        font-size: 20px;
+        background: gold;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    #gachaBtn:hover {
+        transform: scale(1.1);
+    }
+
+    #result {
+        margin-top: 30px;
+        font-size: 30px;
+        min-height: 50px;
+    }
+
+    .card {
+        margin-top: 20px;
+        padding: 20px;
+        border-radius: 15px;
+        display: inline-block;
+        font-size: 24px;
+        animation: pop 0.5s ease;
+    }
+
+    .N { background: gray; }
+    .R { background: blue; }
+    .SR { background: purple; }
+    .SSR { background: gold; color: black; }
+
+    @keyframes pop {
+        0% { transform: scale(0); }
+        100% { transform: scale(1); }
+    }
+</style>
+</head>
+<body>
+
+<h1>🎰 ガチャゲーム</h1>
+
+<button id="gachaBtn">ガチャを引く！</button>
+
+<div id="result"></div>
+
+<script>
+const characters = [
+    { name: "スライム", rarity: "N", rate: 50 },
+    { name: "ゴブリン", rarity: "N", rate: 30 },
+    { name: "ナイト", rarity: "R", rate: 10 },
+    { name: "ドラゴン", rarity: "SR", rate: 7 },
+    { name: "神龍", rarity: "SSR", rate: 3 }
+];
+
+function drawGacha() {
+    let rand = Math.random() * 100;
+    let sum = 0;
+
+    for (let char of characters) {
+        sum += char.rate;
+        if (rand <= sum) {
+            return char;
+        }
+    }
+}
+
+document.getElementById("gachaBtn").addEventListener("click", () => {
+    const result = drawGacha();
+    const resultDiv = document.getElementById("result");
+
+    resultDiv.innerHTML = `
+        <div class="card ${result.rarity}">
+            ${result.rarity}：${result.name}
+        </div>
+    `;
+});
+</script>
+
+</body>
+</html>
